@@ -5,8 +5,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lostinbrittany.teaching.android.tb.simpletchat.model.Message;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class NetworkHelper {
@@ -68,6 +71,7 @@ public class NetworkHelper {
     public static final String BASE_URL = "http://cesi.cleverapps.io";
     public static final String SIGNUP_SERVICE = "/signup";
     public static final String SIGNIN_SERVICE = "/signin";
+    public static final String MESSAGE_SERVICE = "/messages";
 
     public static String signup(String username, String password, String urlPhoto) {
         try {
@@ -154,4 +158,59 @@ public class NetworkHelper {
         }
         return null;
     }
+
+    public static List<Message> getMessages(String token) {
+        try {
+            URL url = new URL(BASE_URL+MESSAGE_SERVICE);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(15000);
+
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+
+            conn.setRequestProperty("token", token);
+
+            conn.connect();
+
+            int response = conn.getResponseCode();
+            Log.d("NetworkHelper", "The response code is: " + response);
+
+            if (response >= 400) {
+                Log.e("getMessages", "Error: "+readIt(conn.getErrorStream()));
+            }
+            String responseText = readIt(conn.getInputStream());
+            return getMessageFromJSON(responseText);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public static List<Message> getMessageFromJSON(String json) {
+        List<Message> messages = new LinkedList<>();
+        JSONArray array = null;
+        try {
+            array = new JSONArray(json);
+            JSONObject obj;
+            Message msg;
+            for(int i=0; i < array.length(); i++){
+                obj = array.getJSONObject(i);
+                msg = new Message(
+                        obj.optLong("date"),
+                        obj.optString("username"),
+                        obj.optString("message") );
+                messages.add(msg);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return messages;
+    }
+
 }
