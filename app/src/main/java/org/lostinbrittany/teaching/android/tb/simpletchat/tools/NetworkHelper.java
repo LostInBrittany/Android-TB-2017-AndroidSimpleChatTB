@@ -5,6 +5,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,8 +67,7 @@ public class NetworkHelper {
 
     public static final String BASE_URL = "http://cesi.cleverapps.io";
     public static final String SIGNUP_SERVICE = "/signup";
-
-
+    public static final String SIGNIN_SERVICE = "/signin";
 
     public static String signup(String username, String password, String urlPhoto) {
         try {
@@ -104,6 +106,50 @@ public class NetworkHelper {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String signin(String username, String password) {
+        try {
+            URL url = new URL(BASE_URL+SIGNIN_SERVICE);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(15000);
+
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+
+            StringBuilder params = new StringBuilder();
+            params.append("username=").append(URLEncoder.encode(username, "UTF-8")).append("&")
+                    .append("pwd=").append(URLEncoder.encode(password, "UTF-8"));
+
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(params.toString());
+            writer.flush();
+            writer.close();
+            os.close();
+
+            conn.connect();
+
+            int response = conn.getResponseCode();
+            Log.d("NetworkHelper", "The response code is: " + response);
+
+            if (response >= 400) {
+                return "Error: "+readIt(conn.getErrorStream());
+            }
+            String responseText = readIt(conn.getInputStream());
+            return new JSONObject(responseText).optString("token");
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
