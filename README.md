@@ -254,7 +254,7 @@ private class SignupAsyncTask extends AsyncTask<String, Void, String> {
 }
 ```
 
-## Step-04 Do the sign-in
+### Step-03: Do the sign-in
 
 Reset the workspace to step-03.
 
@@ -362,3 +362,4 @@ private class SigninAsyncTask extends AsyncTask<String, Void, String> {
      }
  }
 ```
+
