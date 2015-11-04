@@ -1,6 +1,7 @@
 package org.lostinbrittany.teaching.android.tb.simpletchat;
 
 import android.os.AsyncTask;
+import org.lostinbrittany.teaching.android.tb.simpletchat.model.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,10 +32,10 @@ public class MessageActivity extends AppCompatActivity {
 
     }
 
-    private class MessageListAsyncTask extends AsyncTask<String, Void, String> {
+    private class MessageListAsyncTask extends AsyncTask<String, Void, List<Message>> {
 
         @Override
-        protected String doInBackground(String... params) {
+        protected List<Message> doInBackground(String... params) {
 
             boolean networkAvailable = NetworkHelper.isInternetAvailable(getApplicationContext());
             Log.d("Available network?", Boolean.toString(networkAvailable));
@@ -47,10 +48,17 @@ public class MessageActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String messages) {
+        protected void onPostExecute(List<Message> messages) {
 
             TextView messageList = (TextView) findViewById(R.id.message_list);
-            messageList.setText(messages);
+            StringBuilder sb = new StringBuilder();
+            for (Message msg: messages) {
+                sb.append("---------------------------\n");
+                sb.append(new java.util.Date(msg.getDate())).append("\n")
+                    .append(msg.getUsername()).append("\n")
+                    .append(msg.getMessage()).append("\n");
+            }
+            messageList.setText(sb.toString());
         }
     }
 

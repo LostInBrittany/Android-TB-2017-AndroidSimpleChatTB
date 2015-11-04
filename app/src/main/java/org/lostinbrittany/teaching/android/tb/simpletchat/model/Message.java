@@ -3,12 +3,12 @@ package org.lostinbrittany.teaching.android.tb.simpletchat.model;
 
 public class Message {
 
+    private long date;
     private String username;
-    private String date;
     private String message;
 
 
-    public Message(String username, String date, String message) {
+    public Message(long date, String username, String message) {
         this.username = username;
         this.date = date;
         this.message = message;
@@ -22,11 +22,11 @@ public class Message {
         this.username = username;
     }
 
-    public String getDate() {
+    public long getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(long date) {
         this.date = date;
     }
 

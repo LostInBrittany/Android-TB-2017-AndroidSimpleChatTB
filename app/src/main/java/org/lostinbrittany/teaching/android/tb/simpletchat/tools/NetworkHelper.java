@@ -8,6 +8,7 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lostinbrittany.teaching.android.tb.simpletchat.model.Message;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -158,7 +159,7 @@ public class NetworkHelper {
         return null;
     }
 
-    public static String messageList(String token) {
+    public static List<Message> messageList(String token) {
         try {
             URL url = new URL(BASE_URL+MESSAGE_SERVICE);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -179,7 +180,7 @@ public class NetworkHelper {
                 Log.e("getMessages", "Error: "+readIt(conn.getErrorStream()));
             }
             String responseText = readIt(conn.getInputStream());
-            return responseText;
+            return getMessageFromJSON(responseText);
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -189,4 +190,25 @@ public class NetworkHelper {
         return null;
     }
 
+    private static List<Message> getMessageFromJSON(String json) {
+        List<Message> messages = new LinkedList<>();
+        JSONArray array = null;
+        try {
+            array = new JSONArray(json);
+            JSONObject obj;
+            Message msg;
+            for(int i=0; i < array.length(); i++){
+                obj = array.getJSONObject(i);
+                msg = new Message(
+                        obj.optLong("date"),
+                        obj.optString("username"),
+                        obj.optString("message") );
+                messages.add(msg);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return messages;
+    }
 }
