@@ -8,7 +8,6 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.lostinbrittany.teaching.android.tb.simpletchat.model.Message;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -187,29 +186,6 @@ public class NetworkHelper {
             e.printStackTrace();
         }
         return null;
-    }
-
-
-    public static List<Message> getMessageFromJSON(String json) {
-        List<Message> messages = new LinkedList<>();
-        JSONArray array = null;
-        try {
-            array = new JSONArray(json);
-            JSONObject obj;
-            Message msg;
-            for(int i=0; i < array.length(); i++){
-                obj = array.getJSONObject(i);
-                msg = new Message(
-                        obj.optLong("date"),
-                        obj.optString("username"),
-                        obj.optString("message") );
-                messages.add(msg);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return messages;
     }
 
 }
