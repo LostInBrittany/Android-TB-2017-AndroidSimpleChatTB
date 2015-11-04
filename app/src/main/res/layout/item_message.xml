@@ -3,13 +3,6 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/img"
-        android:src="@android:drawable/ic_menu_view"
-        />
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="wrap_content"
@@ -19,17 +12,20 @@
             android:id="@+id/msg_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimaryDark"/>
 
         <TextView
             android:id="@+id/msg_message"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"/>
 
         <TextView
             android:id="@+id/msg_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="italic" />
+            android:textStyle="italic"
+            android:textColor="@color/colorPrimaryDark" />
     </LinearLayout>
 </LinearLayout>

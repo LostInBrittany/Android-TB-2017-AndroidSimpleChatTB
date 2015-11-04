@@ -1,10 +1,13 @@
 package org.lostinbrittany.teaching.android.tb.simpletchat;
 
 import android.os.AsyncTask;
+
+import org.lostinbrittany.teaching.android.tb.simpletchat.adapter.MessageAdapter;
 import org.lostinbrittany.teaching.android.tb.simpletchat.model.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.lostinbrittany.teaching.android.tb.simpletchat.tools.NetworkHelper;
@@ -12,6 +15,8 @@ import org.lostinbrittany.teaching.android.tb.simpletchat.tools.NetworkHelper;
 import java.util.List;
 
 public class MessageActivity extends AppCompatActivity {
+
+    private MessageAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,15 +55,14 @@ public class MessageActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Message> messages) {
 
-            TextView messageList = (TextView) findViewById(R.id.message_list);
-            StringBuilder sb = new StringBuilder();
-            for (Message msg: messages) {
-                sb.append("---------------------------\n");
-                sb.append(new java.util.Date(msg.getDate())).append("\n")
-                    .append(msg.getUsername()).append("\n")
-                    .append(msg.getMessage()).append("\n");
+            for (Message msg: messages.toArray(new Message[0])) {
+                Log.d("message", msg.getUsername());
             }
-            messageList.setText(sb.toString());
+
+            adapter = new MessageAdapter(getApplicationContext(),messages.toArray(new Message[0]));
+
+            ListView listView = (ListView) findViewById(R.id.message_list);
+            listView.setAdapter(adapter);
         }
     }
 

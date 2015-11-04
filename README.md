@@ -572,8 +572,113 @@ into the list.
 > into a view that can be added into the `ListView` layout.
 
 
-So we begin by changing the message list `TextView` by a `ListView` in `activity_message.xml` layout.
+So we begin by changing the message list `ScrollView` and its associated `TextView` by 
+a `ListView` in `activity_message.xml` layout.
 
 
 Then we create a `list_item.xml` layout to represent each item in the `ListView` widget. This layout 
-is the UI element corresponding a each message of the list.
+is the UI element corresponding a each message of the list:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/msg_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimaryDark"/>
+
+        <TextView
+            android:id="@+id/msg_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"/>
+
+        <TextView
+            android:id="@+id/msg_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:textColor="@color/colorPrimaryDark" />
+    </LinearLayout>
+    
+</LinearLayout>
+```
+
+Now we are going to implement the `Adapter` that will inflate (populate) this layout for each 
+element of our `List<Message>`.  
+So we create a `MessageAdapter` class that inflates the XML layout file, finds the relevant views in the layout and
+sets their content based on the input data.
+
+```java
+
+    public class MessageAdapter  extends ArrayAdapter<Message> {
+    
+        private final Context context;
+        private Message[] messages;
+    
+        public MessageAdapter(Context context) {
+            super(context, -1);
+            this.context = context;
+        }
+    
+        public MessageAdapter(Context context, Message[] messages) {
+            super(context, -1, messages);
+            this.context = context;
+            this.messages  = messages;
+        }
+    
+        public void changeMessages(Message[] messages) {
+            this.messages = messages;
+        this.notifyDataSetChanged();
+        }
+    
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater.inflate(R.layout.item_message, parent, false);
+    
+            TextView username = (TextView) rowView.findViewById(R.id.msg_user);
+            TextView date = (TextView) rowView.findViewById(R.id.msg_date);
+            TextView message = (TextView) rowView.findViewById(R.id.msg_message);
+    
+            username.setText(messages[position].getUsername());
+            date.setText(new java.util.Date(messages[position].getDate()).toString());
+            message.setText(messages[position].getMessage());
+    
+            return rowView;
+        }
+    }
+```
+
+Now we can instantiate the adapter in `MessageActivity` and giving it to the `ListView` widget  
+in the `onPostExecute` of the AsyncTask:
+the adapter:
+
+```java
+        @Override
+        protected void onPostExecute(List<Message> messages) {
+
+            for (Message msg: messages.toArray(new Message[0])) {
+                Log.d("message", msg.getUsername());
+            }
+
+            adapter = new MessageAdapter(getApplicationContext(),messages.toArray(new Message[0]));
+
+            ListView listView = (ListView) findViewById(R.id.message_list);
+            listView.setAdapter(adapter);
+        }
+```
+
+
+![Message list](./img/011.png)
