@@ -159,7 +159,7 @@ public class NetworkHelper {
         return null;
     }
 
-    public static List<Message> getMessages(String token) {
+    public static String messageList(String token) {
         try {
             URL url = new URL(BASE_URL+MESSAGE_SERVICE);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -180,7 +180,6 @@ public class NetworkHelper {
                 Log.e("getMessages", "Error: "+readIt(conn.getErrorStream()));
             }
             String responseText = readIt(conn.getInputStream());
-            return getMessageFromJSON(responseText);
 
         } catch (MalformedURLException e) {
             e.printStackTrace();

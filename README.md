@@ -254,15 +254,15 @@ private class SignupAsyncTask extends AsyncTask<String, Void, String> {
 }
 ```
 
-## Step-04 Do the sign-in
+### Step-03: Do the sign-in
 
-Reset the workspace to step-02.
+Reset the workspace to step-03.
 
 ```
-git checkout -f step-02
+git checkout -f step-03
 ```
 
-Add a `signin` method `NetworkHelper`. Remember:
+Add a `signin` method to `NetworkHelper`. Remember:
 
 > Base URL : http://cesi.cleverapps.io/
 > POST /signin
@@ -321,3 +321,150 @@ public static String signin(String username, String password, String urlPhoto) {
     return null;
 }
 ```
+
+Now in the `SigninActivity` you must create an AsyncTask et call this method, and
+deal with the result...
+
+```java
+private class SigninAsyncTask extends AsyncTask<String, Void, String> {
+
+     @Override
+     protected String doInBackground(String... params) {
+
+         boolean networkAvailable = NetworkHelper.isInternetAvailable(getApplicationContext());
+         Log.d("Available network?", Boolean.toString(networkAvailable));
+
+         if (!networkAvailable) {
+             return null;
+         }
+         String username = params[0];
+         String password = params[1];
+
+         return NetworkHelper.signin(username, password);
+     }
+
+     @Override
+     protected void onPostExecute(String result) {
+         if (null == result) {
+             Log.d("AsyncTask result", "null");
+             return;
+         }
+         if (result.startsWith("Error:"))  {
+             Log.d("AsyncTask result", result);
+             Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+         } else {
+             Log.d("AsyncTask", "Finished without error");
+             Intent intent = new Intent(getApplicationContext(), SigninActivity.class);
+             intent.putExtra("message", "User signed in");
+             intent.putExtra("token", result);
+             startActivity(intent);
+         }
+     }
+ }
+```
+
+### Step-04: Recover the message list
+
+Reset the workspace to step-04.
+
+```
+git checkout -f step-04
+```
+
+In the `activity_message.xml` layout we are adding a ScrollView (to get the scroll bar if needed) and
+inside it a simple TextView to show the message list.
+
+
+![MessageActivity](./img/007.png)
+
+
+To recover the message list we need to call the `messages` service in the API.
+As in precedent steps, add a `messageList` method to `NetworkHelper`. Remember:
+
+> Base URL : http://cesi.cleverapps.io/
+> GET /messages
+> Description : Get messages in conferences..
+> Parameters
+> - none
+> Headers
+> - `token`	(string)	User token
+> Output
+> - List of messages
+
+In step-03 you did a POST request, you can take it as inspiration, but you must remember two things:
+
+- As you're doing a GET request, you need to suppress the `conn.setDoOutput(true);` line. The `setDoOutput`
+  method creates a request body, and GET request haven't body.
+  
+- You don't send any parameters with this request, but you send a header with the token. Headers 
+  are set by calling `conn.setRequestProperty(key,value)` 
+  
+```java
+    public static String messageList(String token) {
+        try {
+            URL url = new URL(BASE_URL+MESSAGE_SERVICE);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(15000);
+
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+
+            conn.setRequestProperty("token", token);
+
+            conn.connect();
+
+            int response = conn.getResponseCode();
+            Log.d("NetworkHelper", "The response code is: " + response);
+
+            if (response >= 400) {
+                Log.e("getMessages", "Error: "+readIt(conn.getErrorStream()));
+            }
+            String responseText = readIt(conn.getInputStream());
+            return responseText;
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+```
+
+In `MessageActivity` you create an AsyncTask that calls the `messageList` service in the API.
+In its `onPostExecute` method you copy the message list into the layout's `@+id/message_list`:
+
+```java
+    private class MessageListAsyncTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            boolean networkAvailable = NetworkHelper.isInternetAvailable(getApplicationContext());
+            Log.d("Available network?", Boolean.toString(networkAvailable));
+
+            if (!networkAvailable) {
+                return null;
+            }
+            String token = params[0];
+            return NetworkHelper.messageList(token);
+        }
+
+        @Override
+        protected void onPostExecute(String messages) {
+
+            TextView messageList = (TextView) findViewById(R.id.message_list);
+            messageList.setText(messages);
+        }
+    }
+```
+
+And in the activity's `onCreate()` method, you execute the AsyncTaks when you have read the token.
+
+So now, when you execute the application, you get the message list (in JSON format) in
+ `MessageActivity`.
+
+![And you get the message list](./img/008.png)
+
+
