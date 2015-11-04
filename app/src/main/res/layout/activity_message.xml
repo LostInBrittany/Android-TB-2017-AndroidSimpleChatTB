@@ -17,4 +17,15 @@
         android:layout_gravity="center_horizontal"
         android:textSize="@dimen/abc_text_size_display_1_material" />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView" >
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/messageListView" />
+    </ScrollView>
+
 </LinearLayout>
