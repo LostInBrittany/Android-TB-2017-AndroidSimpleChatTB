@@ -468,3 +468,84 @@ So now, when you execute the application, you get the message list (in JSON form
 ![And you get the message list](./img/008.png)
 
 
+### Step-05: Decode the JSON list
+
+Reset the workspace to step-05.
+
+```
+git checkout -f step-05
+```
+
+In this step we are going to decode the JSON message list. If we look to the received message list
+we can see the structure of the messages:
+
+```json
+[
+  {"username":"test01","date":1446598963059,"message":"Hello world!"},
+  {"username":"test01","date":1446598995272,"message":"Nobody else is there?"},
+  {"username":"test01","date":1446599003251,"message":"I feel alone here..."}]
+```
+
+So in order to deal with messages in our code, we create a `Message` class in a `model` package 
+with the same three attributes: `username`, `date` and `message`. 
+We can use Android Studio to automatically generate a constructor and getters and setters based
+on the three private attributes.
+ 
+![Generate](./img/009.png)
+ 
+
+Now we need to be able to parse the HTTP response with the message list into a `List<Message>` 
+object. The simplest way to use it would be to add a JSON parsing method to `NetworkHelper`:
+
+```java
+    private static List<Message> getMessageFromJSON(String json) {
+        List<Message> messages = new LinkedList<>();
+        JSONArray array = null;
+        try {
+            array = new JSONArray(json);
+            JSONObject obj;
+            Message msg;
+            for(int i=0; i < array.length(); i++){
+                obj = array.getJSONObject(i);
+                msg = new Message(
+                        obj.optLong("date"),
+                        obj.optString("username"),
+                        obj.optString("message") );
+                messages.add(msg);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return messages;
+    }
+```
+
+Then we modify the `messageList` method to return a `List<Message>` instead of a String.
+
+```java
+    return getMessageFromJSON(responseText);
+```
+
+And in `MessageActivity` we use `List<Message>` in the AsyncTask:
+
+```java
+        @Override
+        protected void onPostExecute(List<Message> messages) {
+
+            TextView messageList = (TextView) findViewById(R.id.message_list);
+            StringBuilder sb = new StringBuilder();
+            for (Message msg: messages) {
+                sb.append("---------------------------\n");
+                sb.append(new java.util.Date(msg.getDate())).append("\n")
+                    .append(msg.getUsername()).append("\n")
+                    .append(msg.getMessage()).append("\n");
+            }
+            messageList.setText(sb.toString());
+        }
+```
+
+![Message list](./img/010.png)
+ 
+
+
