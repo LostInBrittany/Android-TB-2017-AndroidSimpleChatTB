@@ -179,6 +179,7 @@ public class NetworkHelper {
                 Log.e("getMessages", "Error: "+readIt(conn.getErrorStream()));
             }
             String responseText = readIt(conn.getInputStream());
+            return responseText;
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
