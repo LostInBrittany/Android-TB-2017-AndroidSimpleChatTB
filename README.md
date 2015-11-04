@@ -548,4 +548,32 @@ And in `MessageActivity` we use `List<Message>` in the AsyncTask:
 ![Message list](./img/010.png)
  
 
+### Step-06: Using a ListView
 
+Reset the workspace to step-06.
+
+```
+git checkout -f step-06
+```
+
+In this step we are going to use a `ListView` widget. 
+`ListView` is a view group that displays a list of scrollable items. 
+The list items are automatically inserted to the list using an `Adapter` that pulls content from 
+a source such as an array or database query and converts each item result into a view that's placed 
+into the list.
+
+> Adapters are used in Android when the content for your layout is dynamic or not pre-determined.
+> You can then use a layout that subclasses `AdapterView` (liske `ListView`) to populate the layout 
+> with views at runtime. 
+
+> The `ListView` class; like other subclasses of `AdapterView`, uses an `Adapter` to bind data to its 
+> layout. The `Adapter` behaves as a middleman between the data source and the `ListView` layout, 
+> it retrieves the data (from a source such as an array or a database query) and converts each entry 
+> into a view that can be added into the `ListView` layout.
+
+
+So we begin by changing the message list `TextView` by a `ListView` in `activity_message.xml` layout.
+
+
+Then we create a `list_item.xml` layout to represent each item in the `ListView` widget. This layout 
+is the UI element corresponding a each message of the list.
