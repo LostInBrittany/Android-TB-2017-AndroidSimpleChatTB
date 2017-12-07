@@ -68,7 +68,7 @@ public class NetworkHelper {
     }
 
 
-    public static final String BASE_URL = "http://cesi.cleverapps.io";
+    public static final String BASE_URL = "http://lostinbrittany-simple-chat.cleverapps.io";
     public static final String SIGNUP_SERVICE = "/signup";
     public static final String SIGNIN_SERVICE = "/signin";
     public static final String MESSAGE_SERVICE = "/messages";
