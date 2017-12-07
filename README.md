@@ -5,6 +5,7 @@ development.
 
 The tutorial relies on the use of the [Git](http://git-scm.com/) versioning system for source code management. You don't need to know anything about Git to follow the tutorial other than how to install and run a few git commands.
 
+For every step, the solution is inside the corresponding step folder. Inside it you will find a `src` folder with the manifest, the Java code and the resources.
 
 ### Step-00: Create project
 
@@ -27,11 +28,6 @@ And you have the new project in the IDE.
 
 ### Step-01: Create the activities
 
-Reset the workspace to step-01.
-
-```
-git checkout -f step-01
-```
 
 In this step you're going to create the three main Activities for the SimpleTchat:
 `SignupActivity`, `SigninActivity` and `MessageActivity`:
@@ -75,12 +71,6 @@ one.
 
 
 ### Step-02: Plug the SignupActivity
-
-Reset the workspace to step-02.
-
-```
-git checkout -f step-02
-```
 
 You begin by placing a listener at `SigninActivity`'s `Signup` button and inside
 it launching an Intent to change the Activity to the `SignupActivity`.
@@ -164,7 +154,7 @@ And a method `signup` to build a post request to the service URL.
 
 Let's see again the details of the service:
 
-> Base URL : http://cesi.cleverapps.io/
+> Base URL : http://lostinbrittany-simple-chat.cleverapps.io/
 > POST /signup
 > Description : Register a new user.
 > Parameters
@@ -256,15 +246,10 @@ private class SignupAsyncTask extends AsyncTask<String, Void, String> {
 
 ### Step-03: Do the sign-in
 
-Reset the workspace to step-03.
-
-```
-git checkout -f step-03
-```
 
 Add a `signin` method to `NetworkHelper`. Remember:
 
-> Base URL : http://cesi.cleverapps.io/
+> Base URL : http://lostinbrittany-simple-chat.cleverapps.io/
 > POST /signin
 > Description : Login to the app.
 > Parameters
@@ -365,12 +350,6 @@ private class SigninAsyncTask extends AsyncTask<String, Void, String> {
 
 ### Step-04: Recover the message list
 
-Reset the workspace to step-04.
-
-```
-git checkout -f step-04
-```
-
 In the `activity_message.xml` layout we are adding a ScrollView (to get the scroll bar if needed) and
 inside it a simple TextView to show the message list.
 
@@ -381,7 +360,7 @@ inside it a simple TextView to show the message list.
 To recover the message list we need to call the `messages` service in the API.
 As in precedent steps, add a `messageList` method to `NetworkHelper`. Remember:
 
-> Base URL : http://cesi.cleverapps.io/
+> Base URL : http://lostinbrittany-simple-chat.cleverapps.io/
 > GET /messages
 > Description : Get messages in conferences..
 > Parameters
@@ -550,12 +529,6 @@ And in `MessageActivity` we use `List<Message>` in the AsyncTask:
 
 ### Step-06: Using a ListView
 
-Reset the workspace to step-06.
-
-```
-git checkout -f step-06
-```
-
 In this step we are going to use a `ListView` widget. 
 `ListView` is a view group that displays a list of scrollable items. 
 The list items are automatically inserted to the list using an `Adapter` that pulls content from 
@@ -682,3 +655,192 @@ the adapter:
 
 
 ![Message list](./img/011.png)
+
+
+### Step-07: Sending messages
+
+Let's begin by adding the message sending method to our `NetworkHelper`.
+
+```java
+    public static String sendMessage(String message, String token) {
+        try {
+            URL url = new URL(BASE_URL+MESSAGE_SERVICE);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(15000);
+
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+
+            conn.setRequestProperty("token", token);
+
+            StringBuilder params = new StringBuilder();
+            params.append("message=").append(URLEncoder.encode(message, "UTF-8"));
+
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(params.toString());
+            writer.flush();
+            writer.close();
+            os.close();
+
+            conn.connect();
+
+            int response = conn.getResponseCode();
+            Log.d("NetworkHelper", "The sendMessage response code is: " + response);
+            return response;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+```
+
+
+Now add a message writing panel to `activity_message.xml`:
+
+![MessageActivity](./img/step-07-001.png)
+
+```xml
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/editMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="@string/message_edit" />
+
+        <Button
+            android:id="@+id/btnSendMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/message_send" />
+    </LinearLayout>
+```
+
+And in `MessageActivity` create the listener for the *send* button.
+
+```java
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_message);
+
+        Bundle extras = getIntent().getExtras();
+        if (null != extras) {
+            String token = extras.getString("token");
+            if (null != token) {
+                MessageListAsyncTask asyncTask = new MessageListAsyncTask();
+                asyncTask.execute(token);
+            }
+        }
+
+        Button btnSendMessage = (Button) findViewById(R.id.btnSendMessage);
+        btnSendMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+  
+            }
+        });
+    }
+```
+
+Now, as usual, you can create an `AsyncTask` to send the message to the server.
+
+```java
+    private class SendMessageAsyncTask extends AsyncTask<String, Void, Integer> {
+
+        @Override
+        protected Integer doInBackground(String... params) {
+
+            boolean networkAvailable = NetworkHelper.isInternetAvailable(getApplicationContext());
+            Log.d("Available network?", Boolean.toString(networkAvailable));
+
+            if (!networkAvailable) {
+                return null;
+            }
+            String message = params[0];
+            return NetworkHelper.sendMessage(message, token);
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+
+            if (200 == result) {
+                EditText editMessage = (EditText) findViewById(R.id.editMessage);
+                editMessage.setText("");
+
+                MessageListAsyncTask asyncTask = new MessageListAsyncTask();
+                asyncTask.execute(token);
+            }
+
+        }
+    }
+```
+
+And you call it from the listener:
+
+```java
+        btnSendMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditText editMessage = (EditText) findViewById(R.id.editMessage);
+                String message = editMessage.getText().toString();
+
+                SendMessageAsyncTask asyncTask = new SendMessageAsyncTask();
+                asyncTask.execute(message);
+
+            }
+        });
+```
+
+You can also add a manual refresh button while waiting for the automatic refresh:
+
+![MessageActivity](./img/step-07-002.png)
+
+```xml
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_title"
+            android:id="@+id/message_title"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:textSize="@dimen/abc_text_size_display_1_material" />
+
+        <Button
+            android:id="@+id/btnRefresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_refresh" />
+    </LinearLayout>
+```
+
+And the corresponding listener to refresh the message list:
+
+```java
+        Button btnRefresh = (Button) findViewById(R.id.btnRefresh);
+
+        btnRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            refreshMessages();
+            }
+        });
+```        

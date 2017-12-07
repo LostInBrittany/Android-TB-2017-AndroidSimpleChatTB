@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">SimpleTchat</string>
+    <string name="signup_title">Sign-up</string>
+    <string name="signup_textName">Username</string>
+    <string name="signup_textPassword">Password</string>
+    <string name="signup_textURL">URL avatar</string>
+    <string name="signin_title">Sign-in</string>
+    <string name="signin_textName">Username</string>
+    <string name="signin_textPassword">Password</string>
+    <string name="message_title">Message Activity</string>
+</resources>
