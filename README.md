@@ -804,6 +804,11 @@ And you call it from the listener:
         });
 ```
 
+And here you have, at last, your fully functional SimpleTchat
+
+![Simple chat](./img/step-07-003.png)
+
+
 You can also add a manual refresh button while waiting for the automatic refresh:
 
 ![MessageActivity](./img/step-07-002.png)
@@ -844,3 +849,5 @@ And the corresponding listener to refresh the message list:
             }
         });
 ```        
+
+![MessageActivity](./img/step-07-004.png)
