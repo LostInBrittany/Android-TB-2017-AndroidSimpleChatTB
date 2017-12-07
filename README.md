@@ -262,7 +262,7 @@ You'll need to parse the answer to recover the token.
 
 
 ```java
-public static String signin(String username, String password, String urlPhoto) {
+public static String signin(String username, String password) {
     try {
         URL url = new URL(BASE_URL+SIGNIN_SERVICE);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
