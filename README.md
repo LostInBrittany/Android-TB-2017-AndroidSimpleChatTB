@@ -1,4 +1,4 @@
-## Simple Tchat
+## Simple Chat
 
 This project is a teaching support for an introductory course to Android
 development.
@@ -9,7 +9,7 @@ For every step, the solution is inside the corresponding step folder. Inside it 
 
 ### Step-00: Create project
 
-You begin a new project, `SimpleTchat`.
+You begin a new project, `SimpleChat`.
 
 ![New project](./img/001.png)
 
@@ -29,7 +29,7 @@ And you have the new project in the IDE.
 ### Step-01: Create the activities
 
 
-In this step you're going to create the three main Activities for the SimpleTchat:
+In this step you're going to create the three main Activities for the SimpleChat:
 `SignupActivity`, `SigninActivity` and `MessageActivity`:
 
 ![Activities](./img/005.png)
@@ -45,7 +45,7 @@ one.
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.lostinbrittany.teaching.android.tb.simpletchat" >
+    package="org.lostinbrittany.teaching.android.tb.simpleChat" >
 
     <application
         android:allowBackup="true"
@@ -101,7 +101,7 @@ Then you give your application internet permissions:
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.lostinbrittany.teaching.android.tb.simpletchat" >
+    package="org.lostinbrittany.teaching.android.tb.simpleChat" >
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -804,7 +804,7 @@ And you call it from the listener:
         });
 ```
 
-And here you have, at last, your fully functional SimpleTchat
+And here you have, at last, your fully functional SimpleChat
 
 ![Simple chat](./img/step-07_003.png)
 
